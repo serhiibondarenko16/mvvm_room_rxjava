@@ -16,8 +16,6 @@ object MyRetrofitBuilder {
         httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
     }
 
-    private val BASE_URL = "https://pixabay.com/"
-
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(httpLoggingInterceptor)
         .build()

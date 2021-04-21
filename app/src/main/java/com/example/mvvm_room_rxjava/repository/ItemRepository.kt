@@ -19,18 +19,14 @@ object ItemRepository {
     private var compositeDisposable = CompositeDisposable()
 
     fun initDb(context: Context) {
-        Log.d(TAG, "call initDb()")
-
         mHomeItemDatabase = HomeItemDatabase.getDatabase(context)
     }
 
     fun cleanCompositeDisposable() {
-        compositeDisposable.dispose()
+        compositeDisposable.clear()
     }
 
     fun getDataFromDb(): LiveData<List<HomeItem>> {
-        Log.d(TAG, "call getDataFromDb()")
-
         val liveDataTestItem = MutableLiveData<List<HomeItem>>()
         compositeDisposable.add(
             mHomeItemDatabase.homeItemDao().getAll()
@@ -40,7 +36,7 @@ object ItemRepository {
                     Log.d(TAG, "call getDataFromDb() finish ok")
                     liveDataTestItem.value = it
                 }, {
-                    Log.e(TAG, "getDataFromDb: Throwable: ${it.localizedMessage}")
+                    Log.e(TAG, "call getDataFromDb() finish Throwable: ${it.localizedMessage}")
                 })
         )
 
@@ -48,8 +44,6 @@ object ItemRepository {
     }
 
     fun getDbSize(): LiveData<Int> {
-        Log.d(TAG, "getDbSize() called")
-
         val dbSize = MutableLiveData<Int>()
         compositeDisposable.add(
             mHomeItemDatabase.homeItemDao().getDbSize()
@@ -58,7 +52,7 @@ object ItemRepository {
                 .subscribe({
                     dbSize.value = it
                 }, {
-                    Log.e(TAG, "dbSize: Throwable: ${it.localizedMessage}")
+                    Log.e(TAG, "call getDbSize() finish Throwable: ${it.localizedMessage}")
                 })
         )
 
@@ -66,30 +60,26 @@ object ItemRepository {
     }
 
     fun insertToDb(testItems: List<HomeItem>) {
-        Log.d(TAG, "insertToDb() called with: testItems = $testItems")
-
         compositeDisposable.add(
             mHomeItemDatabase.homeItemDao().insertAll(testItems)
                 .subscribeOn(Schedulers.io())
                 .subscribe({
-                    Log.d(TAG, "insertToDb onComplete")
+                    Log.d(TAG, "call insertToDb() finish ok")
                 }, {
-                    Log.e(TAG, "insertToDb Throwable: ${it.localizedMessage}")
+                    Log.e(TAG, "call insertToDb() finish Throwable: ${it.localizedMessage}")
                 })
         )
     }
 
 
     fun getDataFromInternet(): LiveData<List<HomeItem>> {
-        Log.d(TAG, "getDataFromInternet() called")
-
         val liveDataTestItem = MutableLiveData<List<HomeItem>>()
         compositeDisposable.add(
             MyRetrofitBuilder.buildService().getData()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({
-                    Log.d(TAG, "Repository getDataFromInternet: $it")
+                    Log.d(TAG, "call getDataFromInternet() finish ok")
                     val testItems = ArrayList<HomeItem>()
                     if (it.hits != null) {
                         it.hits.forEach { hitsItem ->
@@ -100,7 +90,10 @@ object ItemRepository {
                     liveDataTestItem.value = testItems
 
                 }, {
-                    Log.e(TAG, "Repository getValueFromInternet error: ${it.localizedMessage}")
+                    Log.e(
+                        TAG,
+                        "call getDataFromInternet() finish Throwable: ${it.localizedMessage}"
+                    )
                 })
         )
 

@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">mvvm_room_rxjava</string>
     <string name="image_url">IMAGE_URL</string>
+    <string name="update_data_from_internet">Update data from internet</string>
+    <string name="please_check_internet_connection">Please check internet connection</string>
+    <string name="load_data_from_db">Load data from db</string>
+    <string name="delete_db">Delete db</string>
 </resources>

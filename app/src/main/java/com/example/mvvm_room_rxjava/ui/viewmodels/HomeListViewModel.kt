@@ -18,17 +18,23 @@ class HomeListViewModel(application: Application) : AndroidViewModel(application
     init {
         run {
             if (this::mHomeItems.isInitialized) {
-                Log.d(TAG, "mTest is already initialize")
+                Log.d(TAG, "HomeListViewModel init: mHomeItems is already initialize")
                 return@run
             }
 
-            Log.d(TAG, "mTest initialize repository 1 time")
+            Log.d(TAG, "HomeListViewModel init: initialize repository 1 time")
+
             // Init Database
             mItemRepository.initDb(application)
 
             // Get data from database
             mHomeItems = mItemRepository.getDataFromDb() as MutableLiveData<List<HomeItem>>
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        mItemRepository.cleanCompositeDisposable()
     }
 
     fun makeInternetRequest(): LiveData<List<HomeItem>> {

@@ -1,11 +1,9 @@
 package com.example.mvvm_room_rxjava.ui.fragments
 
 import android.content.Intent
-import android.media.Image
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -18,6 +16,7 @@ import com.example.mvvm_room_rxjava.ui.activities.ImageActivity
 import com.example.mvvm_room_rxjava.ui.adapters.HomeRecyclerAdapter
 import com.example.mvvm_room_rxjava.ui.viewmodels.HomeListViewModel
 import com.example.mvvm_room_rxjava.utils.isNetworkAvailable
+import com.example.mvvm_room_rxjava.utils.showMessage
 
 class HomeListFragment :
     Fragment(R.layout.fragment_home_list),
@@ -52,25 +51,23 @@ class HomeListFragment :
         mViewModel.getDataFromViewModel().observe(requireActivity(), Observer { dataViewModel ->
             // If database value is null make internet request
             if (dataViewModel.isEmpty()) {
-                Log.d(TAG, "ViewModel value is EMPTY load data from internet")
                 updateFromInternet()
             } else {
-                Log.d(TAG, "ViewModel value is not EMPTY, get value from ViewModel")
                 changeValuesInAdapter(dataViewModel)
             }
         })
 
         mViewModel.getDbSize().observe(requireActivity(), Observer {
-            Log.d(TAG, "ViewModel get DB size: $it")
+            Log.d(TAG, "call onActivityCreated: ViewModel get DB size: $it")
         })
 
         initOnClickListener()
         initRecyclerView()
     }
 
-    private fun changeValuesInAdapter(dataFromDb: List<HomeItem>) {
+    private fun changeValuesInAdapter(data: List<HomeItem>) {
         mHomeItems.clear()
-        mHomeItems.addAll(dataFromDb)
+        mHomeItems.addAll(data)
         mHomeAdapter.notifyDataSetChanged()
     }
 
@@ -81,37 +78,25 @@ class HomeListFragment :
     }
 
     private fun updateFromInternet() {
-        Log.d(TAG, "updateFromInternet() called")
-
         if (isNetworkAvailable(requireContext())) {
-            mSwipeRefreshLayout.isRefreshing = true
-            Log.d(TAG, "Update date from internet")
+            isRefreshing(true)
 
             mViewModel.makeInternetRequest()
-                .observe(requireActivity(), Observer { internet ->
-                    Log.d(TAG, "updateFromInternet: internet: $internet")
-                    Toast.makeText(
-                        requireContext(),
-                        "Update list from internet",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                .observe(requireActivity(), Observer { dataFromInternet ->
+                    showMessage(requireContext(), getString(R.string.update_data_from_internet))
 
                     // Get value from internet and update adapter
-                    changeValuesInAdapter(internet)
+                    changeValuesInAdapter(dataFromInternet)
 
                     // Save new data to db
-                    mViewModel.insertItemToDb(internet)
+                    mViewModel.insertItemToDb(dataFromInternet)
 
-                    mSwipeRefreshLayout.isRefreshing = false
+                    isRefreshing(false)
                 })
         } else {
-            Log.d(TAG, "Please check internet connection")
-            Toast.makeText(
-                requireContext(),
-                "Please check internet connection",
-                Toast.LENGTH_SHORT
-            ).show()
-            mSwipeRefreshLayout.isRefreshing = false
+            showMessage(requireContext(), getString(R.string.please_check_internet_connection))
+
+            isRefreshing(false)
         }
     }
 
@@ -121,6 +106,10 @@ class HomeListFragment :
         val intent = Intent(requireContext(), ImageActivity::class.java)
         intent.putExtra(getString(R.string.image_url), imageUrl)
         startActivity(intent)
+    }
+
+    private fun isRefreshing(boolean: Boolean) {
+        mSwipeRefreshLayout.isRefreshing = boolean
     }
 
 }

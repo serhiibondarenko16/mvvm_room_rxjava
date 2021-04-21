@@ -16,8 +16,8 @@ class ImageActivity : AppCompatActivity() {
         val constraintLayout = findViewById<ConstraintLayout>(R.id.constraint_image_fragment)
         val imageView = findViewById<ImageView>(R.id.image_view)
 
-        if (intent.hasExtra("IMAGE_URL")) {
-            val imageUrl = intent.getStringExtra("IMAGE_URL")
+        if (intent.hasExtra(getString(R.string.image_url))) {
+            val imageUrl = intent.getStringExtra(getString(R.string.image_url))
             val requestOption = RequestOptions()
                 .placeholder(R.mipmap.ic_launcher)
                 .error(R.mipmap.ic_launcher)
