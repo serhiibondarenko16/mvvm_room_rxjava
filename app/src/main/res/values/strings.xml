@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">mvvm_room_rxjava</string>
+    <string name="image_url">IMAGE_URL</string>
+</resources>
